@@ -46,7 +46,13 @@
       (is (= :http1.1 version))))
 
   (testing "request-body-types"
-    (let [send-and-get-body
+    (let [file
+          (io/file "project.clj")
+
+          path
+          (.toPath file)
+
+          send-and-get-body
           (fn [body]
             (:body (f {:uri (make-url "echo")
                        :method :post
@@ -54,12 +60,14 @@
       (is (= "ROOT" (:body (send (make-url)))))
       (is (= s (send-and-get-body s)))
       (is (= s (send-and-get-body (.getBytes s))))
+      (is (= (slurp file) (send-and-get-body file)))
+      (is (= (slurp file) (send-and-get-body path)))
       (is (= s (send-and-get-body (io/input-stream (.getBytes s)))))))
 
   (testing "response-body-types"
     (let [send-echo (fn [opts] (f (make-url "echo" {:message s}) opts))]
       (is (= s (:body (send-echo {:as :string}))))
-      (is (Arrays/equals (.getBytes s) (:body (send-echo {:as :byte-array}))))
+      (is (Arrays/equals (.getBytes s) ^bytes (:body (send-echo {:as :byte-array}))))
       (is (= s (-> (send-echo {:as :input-stream}) :body slurp)))))
 
   (testing "raw-opt"

@@ -1,4 +1,5 @@
 (ns ^:skip-test java-http-clj.test-server
+  (:import org.eclipse.jetty.server.Server)
   (:require [clojure.java.io :as io]
             [clojure.test :refer :all]
             [compojure.core :refer :all]
@@ -34,4 +35,4 @@
       {:port port
        :websockets {"/ws" ws-handler}
        :join? false}))
-  :stop (.stop server))
+  :stop (.stop ^Server server))

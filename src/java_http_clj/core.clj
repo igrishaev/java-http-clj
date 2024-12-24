@@ -13,6 +13,8 @@
             HttpRequest$Builder
             HttpResponse
             HttpResponse$BodyHandlers]
+           [java.io File]
+           [java.nio.file Path]
            [java.util.concurrent CompletableFuture]
            [java.util.function Function Supplier]))
 
@@ -79,7 +81,13 @@
     (HttpRequest$BodyPublishers/ofInputStream (input-stream-supplier body))
 
     (instance? byte-array-class body)
-    (HttpRequest$BodyPublishers/ofByteArray body)))
+    (HttpRequest$BodyPublishers/ofByteArray body)
+
+    (instance? File body)
+    (HttpRequest$BodyPublishers/ofFile (.toPath ^File body))
+
+    (instance? Path body)
+    (HttpRequest$BodyPublishers/ofFile ^Path body)))
 
 (def ^:private convert-headers-xf
   (mapcat
