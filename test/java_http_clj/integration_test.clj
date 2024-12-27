@@ -8,6 +8,7 @@
             [java-http-clj.specs]
             [mount.core :as mount])
   (:import [java.net.http HttpResponse]
+           [java.io File]
            [java.util Arrays]
            [java.util.concurrent CompletableFuture]))
 
@@ -46,8 +47,12 @@
       (is (= :http1.1 version))))
 
   (testing "request-body-types"
-    (let [file
-          (io/file "project.clj")
+    (let [file-content
+          "hello"
+
+          file
+          (doto (File/createTempFile "tmp" ".tmp")
+            (spit file-content))
 
           path
           (.toPath file)
@@ -60,8 +65,8 @@
       (is (= "ROOT" (:body (send (make-url)))))
       (is (= s (send-and-get-body s)))
       (is (= s (send-and-get-body (.getBytes s))))
-      (is (= (slurp file) (send-and-get-body file)))
-      (is (= (slurp file) (send-and-get-body path)))
+      (is (= file-content (send-and-get-body file)))
+      (is (= file-content (send-and-get-body path)))
       (is (= s (send-and-get-body (io/input-stream (.getBytes s)))))))
 
   (testing "response-body-types"
